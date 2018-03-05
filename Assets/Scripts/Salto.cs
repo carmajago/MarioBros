@@ -9,13 +9,15 @@ public class Salto : MonoBehaviour
 
     public float fallMultuplier;
     public float velocidadSalto;
-    public float tiempoSalto;
+    public float tiempoSalto=0.4f;
 
     private float fuerzasalto;
     private float tiempo = 0;
     private Rigidbody2D rb2D;
     private IsSueloController sueloController;
     private bool bandera = false;
+
+    private bool yaSalto = false;
 
     void Awake()
     {
@@ -27,41 +29,38 @@ public class Salto : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
 
         if (Input.GetButtonDown("Jump"))
         {
+           
             tiempo = Time.time;
+          //  StartCoroutine(calcularFuerzaSalto());
             bandera = false;
+           
+        }
+
+        if (Input.GetButtonUp("Jump"))
+        {
+            fuerzasalto = velocidadSalto;
+            yaSalto = false;
         }
 
 
         if (rb2D.velocity.y < 0)
         {
+            yaSalto = true;
             if (!bandera)
             {
 
 
-              //  Debug.Log("Tiempo: " + (Time.time - tiempo));
+                 Debug.Log("Tiempo: " + (Time.time - tiempo));
                 bandera = true;
             }
-            rb2D.velocity += Vector2.up * Physics2D.gravity.y * (fallMultuplier - 1) * Time.deltaTime;
+           // rb2D.velocity += Vector2.up * Physics2D.gravity.y * (fallMultuplier - 1) * Time.deltaTime;
         }
-        else
-        {
-            if (Input.GetButton("Jump") && sueloController.isSuelo )//&& Time.time < (tiempo + tiempoSalto) && sueloController.isSuelo)
-            {
-                if (rb2D.velocity.y >= 0)
-                {
-                    rb2D.velocity -= Vector2.up * Physics2D.gravity.y * (fuerzasalto - 1) * Time.deltaTime;
-                    Debug.Log(rb2D.velocity.y); 
-                    // fuerzasalto = 0;
-                }
-            }
-        }
-
-
+        
 
 
 
@@ -70,16 +69,23 @@ public class Salto : MonoBehaviour
 
     IEnumerator calcularFuerzaSalto()
     {
-        fuerzasalto = velocidadSalto;
 
-        //float aux = fuerzasalto / (tiempoSalto * 10);
-        //while (fuerzasalto > 0)
-        //{   
-        //    fuerzasalto -= aux;
-        //    yield return new WaitForSeconds(0.1f);
-        //}
-        //fuerzasalto = 0;
-        yield return null;
+        while (rb2D.velocity.y >= 0)
+        {
+            if (Input.GetButton("Jump") && Time.time < (tiempo + tiempoSalto))// && sueloController.isSuelo)
+            {
+
+
+
+                  rb2D.AddForce(Vector2.up * fuerzasalto * Time.deltaTime * 10);
+               // rb2D.velocity -=- Vector2.up * velocidadSalto * Time.deltaTime * 10;      
+            //  Debug.Log(rb2D.velocity.y); 
+                  //  fuerzasalto = fuerzasalto * 0.4f;
+
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
+ 
     }
 
 }

@@ -11,35 +11,37 @@ public class PlayerController : MonoBehaviour {
 
 
     private Rigidbody2D rb2D;
-    private IsSueloController pies;
-
-    private double tiempoSubida;
-    private double tiempobajada;
-    private bool bandera = false;
-    private bool bandera2 = false;
-
-
+    private Animator animator;
+    private Vector3 escalaMario;
     void Awake () {
         rb2D = GetComponent<Rigidbody2D>();
-        pies = GetComponentInChildren<IsSueloController>();
+        animator = GetComponent<Animator>();
+        escalaMario = transform.localScale;
 	}
 	
+    
 	// Update is called once per frame
 	void Update () {
 
         float x = Input.GetAxis("Horizontal");
 
 
-        
-        tiempoSalto();
-        mover(x);
-        if (Input.GetButtonDown("Jump") && pies.isSuelo)
+
+        animator.SetFloat("VelocidadX", Mathf.Abs(rb2D.velocity.x));
+        animator.SetFloat("VelocidadY", Mathf.Abs(rb2D.velocity.y));
+
+
+        if (rb2D.velocity.x > 0)
         {
-            
-            tiempoSubida = Time.time;
-            saltar();
-            
+            transform.localScale = new Vector3(escalaMario.x,escalaMario.y,escalaMario.z);
         }
+        else if(rb2D.velocity.x <0)
+        {
+            transform.localScale = new Vector3(-escalaMario.x, escalaMario.y, escalaMario.z);
+        }
+
+        mover(x);
+     
         rb2D.velocity = new Vector2(Mathf.Clamp(rb2D.velocity.x, -velMaximaX, velMaximaX), Mathf.Clamp(rb2D.velocity.y, -velMaximaY, velMaximaY));
 
     }
@@ -51,33 +53,8 @@ public class PlayerController : MonoBehaviour {
 
     }
 
-    private void saltar()
-    {
-        rb2D.AddForce(Vector2.up  * Time.deltaTime * fuerzaSalto * 100f,ForceMode2D.Impulse);
-        bandera2 = true;
-    }
 
-    void tiempoSalto()
-    {
-        if(rb2D.velocity.y<0 && !pies.isSuelo && !bandera)
-        {
-            bandera = true;
-            tiempoSubida = Time.time - tiempoSubida;
-            
-           tiempobajada = Time.time;
-            //Debug.Log("subida:" + tiempoSubida);
-            tiempoSubida = 0;
-        }
-        if (pies.isSuelo && bandera2)
-        {
-            bandera = false;
-            bandera2 = false;
-            tiempobajada = Time.time - tiempobajada;
-        
-           // Debug.Log("bajada: "+tiempobajada);
-        }
-        if (rb2D.velocity.y != 0)
-            Debug.Log(rb2D.velocity);
-    }
+
+
 
 }
